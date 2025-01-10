@@ -22,8 +22,8 @@ Currently supports adding tracks to your existing public or private playlists.
    # First authenticate with Spotify
    python test_auth.py
    
-   # Then run the festival parser to generate your playlist
-   python test_festival_parser.py
+   # Then run the main file to generate your playlist
+   python main.py
    ```
 
 The program will authenticate with Spotify, scrape the festival lineup, and add the corresponding tracks to your specified playlist.
