@@ -8,7 +8,7 @@ def authenticate_spotify():
     SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
     SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
 
-    scope = "user-library-read playlist-modify-public playlist-modify-private"
+    scope = "user-library-read playlist-modify-public playlist-modify-private user-read-recently-played"
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIFY_CLIENT_ID,
                                                    client_secret=SPOTIFY_CLIENT_SECRET,
                                                    redirect_uri=SPOTIFY_REDIRECT_URI,
