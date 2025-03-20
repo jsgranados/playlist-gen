@@ -1,20 +1,40 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
+from dotenv import load_dotenv
 
-# Function to authenticate and return a Spotify client object
+# Load environment variables from .env file
+# This needs to be called once at the module level
+load_dotenv()
+
 def authenticate_spotify():
-    SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
-    SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
-    SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
+    """
+    Authenticate with Spotify using credentials from environment variables.
+    Returns a authenticated Spotify client object.
+    """
+    client_id = os.getenv('SPOTIFY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+    redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI', 'http://localhost:3000')
 
-    scope = "user-library-read playlist-modify-public playlist-modify-private user-read-recently-played"
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIFY_CLIENT_ID,
-                                                   client_secret=SPOTIFY_CLIENT_SECRET,
-                                                   redirect_uri=SPOTIFY_REDIRECT_URI,
-                                                   scope=scope))
-    return sp
+    if not client_id or not client_secret:
+        raise ValueError("Spotify credentials not found. Please check your .env file contains SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET")
+
+    scope = "user-library-read playlist-modify-public playlist-modify-private playlist-read-private user-read-recently-played "
+    
+    try:
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+            scope=scope
+        ))
+        return sp
+    except Exception as e:
+        raise Exception(f"Failed to authenticate with Spotify: {str(e)}")
 
 def get_playlist_id():
-    SPOTIFY_PLAYLIST_ID = os.getenv('SPOTIFY_PLAYLIST_ID')
-    return SPOTIFY_PLAYLIST_ID
+    """
+    Get the default playlist ID from environment variables.
+    Returns the playlist ID or None if not set.
+    """
+    return os.getenv('SPOTIFY_PLAYLIST_ID')

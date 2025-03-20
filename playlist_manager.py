@@ -1,32 +1,67 @@
 from utils import date_to_unix_timestamp_ms
-def get_last_played_songs(sp, start_date, end_date):
-    # Convert date strings to Unix timestamps in milliseconds
-    timezone_str = "US/Mountain"
-    start_timestamp = date_to_unix_timestamp_ms(start_date, timezone_str)
-    end_timestamp = date_to_unix_timestamp_ms(end_date, timezone_str)
+
+def get_track_uris_from_spotify(sp, songs):
+    """
+    Retrieves Spotify track URIs for a list of songs.
+
+    Args:
+        sp: Spotify client object from spotipy
+        songs: List of dictionaries containing song info with 'artistName' and 'trackName' keys
+
+    Returns:
+        list: List of Spotify track URIs for found songs. Songs not found on Spotify are skipped.
+    """
+    track_uris = []
+    #From a list containing song names, get the track uris from spotify
+    for song in songs:
+        artist = song['artistName']
+        track = song['trackName']
+        results = sp.search(q="artist:" + artist + " track:" + track, type='track')
+        if len(results['tracks']['items'])>0:
+            track_uris.append(results['tracks']['items'][0]['uri'])
+        else:
+            print(f"No track found for {artist} - {track}")
+    return track_uris
+
+def get_last_played_songs(sp, start_date):
+    """
+    Retrieves recently played songs from Spotify within a specified start date.
+    Limited to last 50 songs only, no matter the date range. Designed to handle larger functionality, but unfortunately Spotify only allows getting the last 50 songs listened to.
+
+    Args:
+        sp: Spotify client object from spotipy
+        start_date: Start date in 'YYYY-MM-DD' format
+    Returns:
+        list: List of Spotify track URIs for songs played after start_date
+    """
     matching_tracks = []
-    if not start_timestamp or not end_timestamp:
+    start_date = start_date
+    if not start_date:
         print("Invalid date format. Please use 'YYYY-MM-DD HH:MM:SS' format.")
         return []
-    results = sp.current_user_recently_played(limit=50, before=end_timestamp)
-    print(results)
+    results = sp.current_user_recently_played(limit=50, after=start_date)
     tracks = results['items']
     while results['next']:
         results = sp.next(results)
         tracks.extend(results['items'])
-        print(results['next'])
-    # go through songs and eliminate those that are after the end timestamp
+    # go through songs and add to matching tracks
     for item in tracks:
         track = item['track']
-        track_played_at = item['played_at']
-        if track_played_at > end_date:
-            continue
-        else:
-            matching_tracks.append(track['uri'])
+        matching_tracks.append(track['uri'])
     return matching_tracks
 
 
 def get_liked_songs_from_artist_list(sp, artist_list):
+    """
+    Retrieves liked songs from the user's library that are by artists in the provided list.
+
+    Args:
+        sp: Spotify client object from spotipy
+        artist_list: List of artist names to match against
+
+    Returns:
+        list: List of Spotify track URIs for liked songs by matching artists
+    """
     matching_tracks = []
     results = sp.current_user_saved_tracks()
     my_tracks = results['items']
@@ -39,11 +74,17 @@ def get_liked_songs_from_artist_list(sp, artist_list):
         track_artists = [artist['name'] for artist in track['artists']]  # Get all artists
         if any(artist.lower() in [a.lower() for a in track_artists] for artist in artist_list):
             matching_tracks.append(track['uri'])
-            #print(f"Found matching track: {', '.join(track_artists)} - {track['name']}")
     return matching_tracks
 
 
 def add_tracks_to_playlist(sp, playlist_id, track_uris):
+    """
+    Adds tracks to a specified Spotify playlist.
+
+    Args:
+        sp: Spotify client object from spotipy
+        playlist_id: ID of the playlist to add songs to
+    """
     results = sp.playlist_items(playlist_id)
     songs = results['items']
     #get all songs in the playlist
