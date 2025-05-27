@@ -35,11 +35,12 @@ def get_last_played_songs(sp, start_date):
         list: List of Spotify track URIs for songs played after start_date
     """
     matching_tracks = []
-    start_date = start_date
-    if not start_date:
+    # Convert start_date to Unix timestamp in milliseconds
+    start_timestamp_ms = date_to_unix_timestamp_ms(start_date)
+    if not start_timestamp_ms:
         print("Invalid date format. Please use 'YYYY-MM-DD HH:MM:SS' format.")
         return []
-    results = sp.current_user_recently_played(limit=50, after=start_date)
+    results = sp.current_user_recently_played(limit=50, after=start_timestamp_ms)
     tracks = results['items']
     while results['next']:
         results = sp.next(results)
@@ -79,23 +80,34 @@ def get_liked_songs_from_artist_list(sp, artist_list):
 
 def add_tracks_to_playlist(sp, playlist_id, track_uris):
     """
-    Adds tracks to a specified Spotify playlist.
+    Adds tracks to a specified Spotify playlist in batches of 100 to respect API limits.
 
     Args:
         sp: Spotify client object from spotipy
         playlist_id: ID of the playlist to add songs to
+        track_uris: List of track URIs to add to the playlist
     """
+    # Get existing songs in playlist
     results = sp.playlist_items(playlist_id)
     songs = results['items']
-    #get all songs in the playlist
     while results['next']:
         results = sp.next(results)
         songs.extend(results['items'])
-    #clean songs for only uris
+    
+    # Clean songs for only URIs
     clean_songs = [song['track']['uri'] for song in songs]
-    #remove duplicates between the playlist and the new songs
+    
+    # Remove duplicates between the playlist and the new songs
     songs_to_add = list(set(track_uris) - set(clean_songs))
-    #add tracks to the playlist
-    print(f"Adding {len(songs_to_add)} tracks to playlist '{playlist_id}'.")
-    sp.playlist_add_items(playlist_id, songs_to_add)
-    print(f"Added {len(songs_to_add)} tracks to playlist '{playlist_id}'.") 
+    
+    # Add tracks in batches of 100
+    batch_size = 100
+    total_added = 0
+    
+    for i in range(0, len(songs_to_add), batch_size):
+        batch = songs_to_add[i:i + batch_size]
+        sp.playlist_add_items(playlist_id, batch)
+        total_added += len(batch)
+        print(f"Added batch of {len(batch)} tracks to playlist '{playlist_id}'.")
+    
+    print(f"Successfully added {total_added} tracks to playlist '{playlist_id}'.") 

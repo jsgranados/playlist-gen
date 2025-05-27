@@ -14,7 +14,7 @@ def authenticate_spotify():
     """
     client_id = os.getenv('SPOTIFY_CLIENT_ID')
     client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
-    redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI', 'http://localhost:3000')
+    redirect_uri = os.getenv('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:8000/callback')
 
     if not client_id or not client_secret:
         raise ValueError("Spotify credentials not found. Please check your .env file contains SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET")

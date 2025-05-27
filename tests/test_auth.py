@@ -1,4 +1,4 @@
-from auth import authenticate_spotify
+from tests/auth import authenticate_spotify
 
 # Test function to verify Spotify authentication
 
