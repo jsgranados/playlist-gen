@@ -1,163 +1,136 @@
 # Spotify Playlist Generator
 
-A flexible command-line tool that allows you to create dynamic Spotify playlists based on various criteria:
-- Create playlists from your liked songs by artists in a festival lineup
-- Generate playlists from your Spotify listening history based on date ranges
-- Build playlists from your recently played tracks
+This project is now structured as a hosted `Next.js` app that keeps the original three playlist-generation modes and exposes them through a real web interface:
+
+- Festival lineup to playlist
+- Recent plays to playlist
+- Streaming-history export to playlist
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Auth.js with Spotify OAuth
+- Spotify Web API
+- Zod validation
+- Luxon date handling
 
 ## Features
 
-- **Festival Lineup Playlists**: Find songs you've liked from artists performing at festivals
-- **History-Based Playlists**: Create playlists from your Spotify listening history within specific date ranges
-- **Recent Activity Playlists**: Generate playlists from your recently played tracks
-- **Flexible Date Handling**: Support for various date formats and timezones
-- **Command-Line Interface**: Easy-to-use CLI for all functionality
+- Spotify OAuth sign-in
+- Public landing page plus authenticated app dashboard
+- Create a new playlist or append to an existing playlist in every workflow
+- Festival lineup matching against liked songs
+- Recent-play filtering with Spotify's 50-track API limit called out in the UI
+- History export upload with server-side parsing and immediate raw-file disposal
+- Playlist deduplication before write
+- Basic request throttling and same-origin protections on mutation routes
 
-## Requirements
+## Local Development
 
-- Python 3.6+
-- Spotify account
-- Spotify Developer API credentials
-
-## Installation
-
-1. **Clone the repository**:
+1. Install Node dependencies:
    ```bash
-   git clone https://github.com/yourusername/playlist-gen.git
-   cd playlist-gen
+   npm install
    ```
 
-2. **Create a virtual environment**:
+2. Copy the environment template:
    ```bash
-   python3 -m venv venv
+   cp .env.example .env
    ```
 
-3. **Activate the virtual environment**:
-   - On macOS/Linux:
-     ```bash
-     source venv/bin/activate
-     ```
-   - On Windows:
-     ```bash
-     venv\Scripts\activate
-     ```
+3. Fill in your Spotify app values in `.env`.
 
-4. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
+4. In the Spotify Developer Dashboard, add this redirect URI:
+   ```text
+   http://127.0.0.1:3000/api/auth/callback/spotify
    ```
 
-## Spotify API Setup
+5. Start the app:
+   ```bash
+   npm run dev
+   ```
 
-1. Visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/)
-2. Log in with your Spotify account
-3. Create a new application
-4. Note down the **Client ID** and **Client Secret**
-5. Set the Redirect URI to `http://localhost:8888/callback` in your app settings
+6. Open `http://127.0.0.1:3000`.
 
-## Configuration
-
-Create a `.env` file in the root directory with the following content:
-
-```
-# Spotify API Credentials
-SPOTIFY_CLIENT_ID=your_client_id_here
-SPOTIFY_CLIENT_SECRET=your_client_secret_here
-SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
-
-# Default Playlist ID (optional)
-SPOTIFY_PLAYLIST_ID=your_default_playlist_id_here
-```
-
-Replace `your_client_id_here` and `your_client_secret_here` with your Spotify API credentials.
-
-To get your playlist ID:
-1. Open Spotify and navigate to the playlist you want to use
-2. The ID is the string of characters after `playlist/` in the URL
-   (e.g., from `https://open.spotify.com/playlist/5ztb6ETYzdpNUvJrbZRrDN`, the ID is `5ztb6ETYzdpNUvJrbZRrDN`)
-
-## Usage
-
-### Create a Playlist from Festival Lineup
+## Required Environment Variables
 
 ```bash
-python main.py festival [--url FESTIVAL_URL] [--playlist-id PLAYLIST_ID]
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+APP_URL=http://127.0.0.1:3000
+NEXTAUTH_URL=http://127.0.0.1:3000
+AUTH_SECRET=replace_me_with_a_long_random_secret
 ```
 
-- `--url`: (Optional) URL to the festival lineup JSON
-- `--playlist-id`: (Optional) Spotify playlist ID to add songs to
+## Workflows
 
-If you don't specify a URL, it will use the default Coachella lineup URL.
+### Festival
 
-Example:
+- Input a festival lineup JSON URL
+- The app extracts artist titles from the payload
+- Your saved Spotify tracks are scanned for artist matches
+- Matched tracks are added to a new or existing playlist
+
+### Recent
+
+- Input a start date/time and optional end date/time
+- The app fetches your recent Spotify plays
+- Results are limited by Spotify's public API to the most recent 50 plays
+- Matching tracks are added to a new or existing playlist
+
+### History
+
+- Upload a Spotify streaming-history JSON export
+- Choose a start and end date/time
+- The app filters rows in the selected range and resolves them against Spotify tracks
+- Raw upload data is processed for the request only and not retained
+
+To get the history export, request "Extended streaming history" from Spotify Privacy settings.
+
+## Quality Checks
+
 ```bash
-python main.py festival --playlist-id 5ztb6ETYzdpNUvJrbZRrDN
+npm run test
+npm run lint
+npm run build
 ```
 
-### Create a Playlist from Spotify History
+## Deployment Notes
 
-```bash
-python main.py history --file PATH_TO_JSON --start START_DATE --end END_DATE [--playlist-id PLAYLIST_ID]
-```
+### Recommended Host
 
-- `--file`: Path to Spotify history JSON file
-- `--start`: Start date in format 'YYYY-MM-DD'
-- `--end`: End date in format 'YYYY-MM-DD'
-- `--playlist-id`: (Optional) Spotify playlist ID to add songs to
+Vercel is the cleanest fit for this app. It is a standard Next.js App Router app with
+no database, no queues, and no long-running jobs.
 
-Example:
-```bash
-python main.py history --file spotify_data/streaming_history.json --start 2023-01-01 --end 2023-03-31
-```
+### Vercel Deployment
 
-### Create a Playlist from Recently Played Tracks
+1. Push the repo to GitHub.
+2. Import it into Vercel as a Next.js project.
+3. Set these production environment variables in Vercel:
+   ```bash
+   SPOTIFY_CLIENT_ID=your_spotify_client_id
+   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   APP_URL=https://playlist.yourdomain.com
+   NEXTAUTH_URL=https://playlist.yourdomain.com
+   AUTH_SECRET=replace_me_with_a_long_random_secret
+   ```
+4. Add your production domain in Vercel.
+5. In the Spotify Developer Dashboard, add this redirect URI:
+   `https://playlist.yourdomain.com/api/auth/callback/spotify`
+6. Deploy and verify:
+   - `https://playlist.yourdomain.com/api/health`
+   - Spotify sign-in
+   - Festival, recent, and history workflows
 
-```bash
-python main.py recent --start START_DATE --end END_DATE [--playlist-id PLAYLIST_ID]
-```
+### Production Notes
 
-- `--start`: Start date in format 'YYYY-MM-DD'
-- `--end`: End date in format 'YYYY-MM-DD'
-- `--playlist-id`: (Optional) Spotify playlist ID to add songs to
-
-Example:
-```bash
-python main.py recent --start 2023-04-01 --end 2023-04-30
-```
-
-## Getting Your Spotify Data
-
-To use the `history` command, you need your Spotify streaming history:
-
-1. Request your data from [Spotify Privacy Settings](https://www.spotify.com/account/privacy/)
-2. Select "Extended streaming history"
-3. Wait for the email with your data (usually takes a few days)
-4. Extract the JSON files from the downloaded archive
-5. Use these files with the `--file` parameter
-
-## Troubleshooting
-
-### Authentication Issues
-
-- Make sure your Client ID and Client Secret are correct
-- Check that your Redirect URI matches exactly what's in your Spotify Developer Dashboard
-- If you get an error about invalid scopes, make sure you have proper permissions set in your app
-
-### Date Parsing Errors
-
-- Use the format 'YYYY-MM-DD' for dates
-- If you're having timezone issues, specify your timezone in the .env file
-
-### API Rate Limits
-
-- Spotify has rate limits. If you hit them, wait a bit before trying again
+- Keep `AUTH_SECRET` stable across deployments.
+- Preview deployments may not complete Spotify OAuth unless their exact preview callback
+  URL is also registered in Spotify.
+- If the Spotify app remains in development mode, only configured Spotify users can sign in.
+- The `/api/health` endpoint returns deployment-safe readiness details and the expected
+  Spotify callback URI without exposing secrets.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- [Spotipy](https://spotipy.readthedocs.io/) - Python library for the Spotify Web API
-- [python-dotenv](https://github.com/theskumar/python-dotenv) - For managing environment variables
-- [dateutil](https://dateutil.readthedocs.io/) - For flexible date parsing
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
