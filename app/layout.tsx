@@ -1,11 +1,20 @@
 import type { ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "Playlist Generator",
-  description: "Build Spotify playlists from festival lineups, recent plays, and history exports."
+  title: {
+    default: "Crate — Build Spotify playlists from your sources",
+    template: "%s · Crate"
+  },
+  description:
+    "Crate turns festival lineups, recent plays, and streaming history into polished Spotify playlists.",
+  applicationName: "Crate"
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0d10"
 };
 
 export default function RootLayout({

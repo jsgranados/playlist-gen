@@ -1,16 +1,16 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { AppNav } from "@/components/app-nav";
 import { SignOutButton } from "@/components/auth-buttons";
+import { Logo } from "@/components/logo";
 
-const navItems = [
-  { href: "/app", label: "Overview" },
-  { href: "/app/festival", label: "Festival" },
-  { href: "/app/recent", label: "Recent" },
-  { href: "/app/history", label: "History" }
-];
+function initialOf(name: string | null | undefined) {
+  const trimmed = name?.trim();
+  if (!trimmed) return "?";
+  return trimmed.charAt(0).toUpperCase();
+}
 
 export default async function AppLayout({
   children
@@ -23,22 +23,24 @@ export default async function AppLayout({
     redirect("/signin");
   }
 
+  const displayName = session.user.name ?? "Spotify user";
+
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
-        <div>
-          <span className="eyebrow">Playlist Generator</span>
-          <h1>Build Spotify playlists with less friction.</h1>
-          <p>{session.user.name ?? "Spotify user"}</p>
-        </div>
+        <div className="sidebar-top">
+          <Logo />
 
-        <nav className="nav-stack">
-          {navItems.map((item) => (
-            <Link href={item.href} key={item.href}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+          <div className="sidebar-user">
+            <div className="avatar" aria-hidden="true">
+              {initialOf(displayName)}
+            </div>
+            <span className="label">Signed in</span>
+            <span className="name">{displayName}</span>
+          </div>
+
+          <AppNav />
+        </div>
 
         <SignOutButton />
       </aside>

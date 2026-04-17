@@ -16,7 +16,7 @@ export function DashboardCard({
       <span className="eyebrow">{eyebrow}</span>
       <h3>{title}</h3>
       <p>{description}</p>
-      <span className="inline-link">Open workflow</span>
+      <span className="inline-link">Open</span>
     </Link>
   );
 }

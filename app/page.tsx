@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { SignInButton } from "@/components/auth-buttons";
+import { Logo } from "@/components/logo";
 
 export default async function LandingPage() {
   const session = await auth();
@@ -15,11 +16,13 @@ export default async function LandingPage() {
     <main className="landing-shell">
       <section className="hero">
         <div className="hero-copy">
-          <span className="eyebrow">Spotify Playlist Generator</span>
-          <h1>From one-off script to polished playlist control room.</h1>
+          <Logo />
+          <h1>
+            Turn your music into a <span className="accent">crate</span>, not a query.
+          </h1>
           <p>
-            Sign in with Spotify, keep the three original generation modes, and run them
-            from a product-ready interface built for the web.
+            Crate pulls from festival lineups, your recent plays, and your streaming
+            history, then files everything into Spotify playlists. No scripts, no spreadsheets.
           </p>
 
           <div className="hero-actions">
@@ -31,36 +34,46 @@ export default async function LandingPage() {
         </div>
 
         <div className="hero-panel">
+          <div className="hero-panel-title">What&rsquo;s inside</div>
           <div className="hero-stat">
-            <span>3 preserved workflows</span>
-            <strong>Festival, recent, history</strong>
+            <span>Festival</span>
+            <strong>Lineup JSON → liked tracks</strong>
           </div>
           <div className="hero-stat">
-            <span>Spotify aware</span>
-            <strong>OAuth, playlists, saved tracks</strong>
+            <span>Recent</span>
+            <strong>Last 50 plays, filtered</strong>
           </div>
           <div className="hero-stat">
-            <span>Safer by default</span>
-            <strong>Validation, dedupe, rate limiting</strong>
+            <span>History</span>
+            <strong>Full streaming export, ranged</strong>
           </div>
         </div>
       </section>
 
       <section className="feature-grid" id="features">
         <article className="feature-card">
-          <span className="eyebrow">Festival flow</span>
-          <h2>Match lineups against your liked songs.</h2>
-          <p>Paste a festival JSON feed and turn artist overlap into a playlist in one run.</p>
+          <span className="eyebrow">Festival</span>
+          <h2>Match a lineup against your library.</h2>
+          <p>
+            Paste a festival JSON feed. Crate scans your saved tracks, finds every artist
+            overlap, and drops the matches straight into a playlist.
+          </p>
         </article>
         <article className="feature-card">
-          <span className="eyebrow">Recent flow</span>
-          <h2>Capture the last 50 plays that matter.</h2>
-          <p>Filter your recent listening activity by time and send it straight into Spotify.</p>
+          <span className="eyebrow">Recent</span>
+          <h2>Capture the fifty plays that matter.</h2>
+          <p>
+            Filter your most recent listening activity by window, dedupe against your
+            destination, and send it to Spotify in one pass.
+          </p>
         </article>
         <article className="feature-card">
-          <span className="eyebrow">History flow</span>
-          <h2>Upload your export when the API cannot go deep enough.</h2>
-          <p>Keep full-range historical playlist generation without retaining the raw file.</p>
+          <span className="eyebrow">History</span>
+          <h2>Dig deeper than the API allows.</h2>
+          <p>
+            Upload your Spotify streaming history export for a date range. Crate resolves
+            the tracks and never retains the raw file.
+          </p>
         </article>
       </section>
     </main>

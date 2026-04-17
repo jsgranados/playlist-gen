@@ -8,10 +8,10 @@ export function ResultPanel({
   return (
     <section className="result-panel">
       <div className="result-header">
-        <span className="eyebrow">Run Complete</span>
+        <span className="eyebrow">Crate filed</span>
         <h3>{result.playlist.name}</h3>
         <a className="inline-link" href={result.playlist.url} rel="noreferrer" target="_blank">
-          Open playlist
+          Open in Spotify
         </a>
       </div>
 

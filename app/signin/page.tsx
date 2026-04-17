@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { SignInButton } from "@/components/auth-buttons";
+import { Logo } from "@/components/logo";
 
 const signInErrorMessages: Record<string, string> = {
   AccessDenied:
@@ -49,11 +50,12 @@ export default async function SignInPage({
   return (
     <main className="centered-page">
       <section className="auth-panel">
+        <Logo />
         <span className="eyebrow">Spotify OAuth</span>
-        <h1>Connect your account to start generating playlists.</h1>
+        <h1>Connect Spotify to start building crates.</h1>
         <p>
-          The app uses Spotify for sign-in, playlist reads, playlist writes, liked tracks,
-          and recent-play data. History uploads are processed only for the current request.
+          Crate uses Spotify for sign-in, playlist reads and writes, liked tracks, and
+          recent plays. Uploaded history files are processed only for the current request.
         </p>
         {signInError ? (
           <div className="callout error" role="alert">
