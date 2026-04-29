@@ -30,11 +30,14 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(ellipse 60% 40% at 15% -5%, rgba(198, 255, 61, 0.1), transparent 60%),
     radial-gradient(ellipse 50% 35% at 95% 10%, rgba(255, 107, 74, 0.08), transparent 60%),
@@ -64,6 +67,13 @@ select {
   color: inherit;
 }
 
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
 .landing-shell,
 .centered-page,
 .app-main {
@@ -76,6 +86,7 @@ select {
   align-items: center;
   display: inline-flex;
   gap: 12px;
+  min-width: 0;
 }
 
 .brand-mark {
@@ -104,7 +115,7 @@ select {
     serif;
   font-size: 1.6rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 /* ---------- Hero ---------- */
@@ -159,10 +170,11 @@ select {
     serif;
   font-size: clamp(2.6rem, 5.5vw, 5rem);
   font-weight: 500;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
   line-height: 0.98;
   margin: 0;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .hero-copy h1 .accent {
@@ -188,6 +200,7 @@ select {
   line-height: 1.6;
   margin: 0;
   font-size: 1.02rem;
+  overflow-wrap: anywhere;
 }
 
 .hero-copy p {
@@ -300,10 +313,11 @@ select {
     serif;
   font-size: 1.5rem;
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   line-height: 1.15;
   margin: 0;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .dashboard-card .inline-link,
@@ -324,9 +338,10 @@ select {
   font-weight: 600;
   font-size: 0.95rem;
   justify-content: center;
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
   min-height: 48px;
   padding: 0 24px;
+  text-align: center;
   transition:
     background-color 160ms ease,
     transform 160ms ease,
@@ -412,6 +427,11 @@ select {
   margin: 0 auto;
 }
 
+.app-main {
+  min-width: 0;
+  padding: 0;
+}
+
 .app-sidebar {
   align-content: space-between;
   background: var(--ink-2);
@@ -424,6 +444,7 @@ select {
   top: 24px;
   height: fit-content;
   max-height: calc(100vh - 48px);
+  min-width: 0;
 }
 
 .sidebar-top {
@@ -585,7 +606,9 @@ select {
   border-radius: 12px;
   color: var(--text);
   min-height: 48px;
+  min-width: 0;
   padding: 0 14px;
+  width: 100%;
   transition:
     border-color 150ms ease,
     background 150ms ease;
@@ -670,6 +693,7 @@ select {
   border-radius: 14px;
   font-size: 0.92rem;
   padding: 14px 16px;
+  overflow-wrap: anywhere;
 }
 
 .callout.soft {
@@ -710,6 +734,7 @@ select {
 
 .result-header h3 {
   font-size: 1.8rem;
+  overflow-wrap: anywhere;
 }
 
 .stats-grid {
@@ -743,7 +768,7 @@ select {
     serif;
   font-size: 1.8rem;
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .result-list ul {
@@ -764,6 +789,11 @@ select {
   padding: 12px 14px;
 }
 
+.result-list li span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .result-list li span:first-child {
   color: var(--text);
   font-weight: 500;
@@ -780,6 +810,7 @@ select {
   font-size: 0.9rem;
   font-weight: 600;
   gap: 6px;
+  overflow-wrap: anywhere;
   transition: gap 150ms ease;
 }
 
@@ -811,23 +842,155 @@ select {
 }
 
 @media (max-width: 720px) {
+  :root {
+    --radius: 16px;
+    --radius-lg: 20px;
+  }
+
   .landing-shell,
   .centered-page,
-  .app-main,
   .app-shell {
-    padding: 18px;
+    padding: 16px;
   }
 
   .hero {
-    padding: 28px;
+    gap: 24px;
+    margin: 0 auto 16px;
+    padding: 24px;
+  }
+
+  .hero::before {
+    height: 320px;
+    right: -35%;
+    top: -15%;
+    width: 320px;
+  }
+
+  .hero-copy h1,
+  .auth-panel h1,
+  .workflow-copy h2,
+  .page-header h2 {
+    font-size: clamp(2rem, 11vw, 2.8rem);
+    line-height: 1.04;
+    max-width: none;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions .button,
+  .auth-panel .button,
+  .form-grid > .button,
+  .app-sidebar > .button {
+    width: 100%;
+  }
+
+  .hero-panel,
+  .feature-card,
+  .dashboard-card,
+  .auth-panel,
+  .page-header,
+  .workflow-card,
+  .result-panel {
+    padding: 20px;
+  }
+
+  .feature-grid,
+  .dashboard-card-grid {
+    grid-template-columns: 1fr;
+    margin-top: 16px;
+  }
+
+  .app-shell {
+    gap: 16px;
+  }
+
+  .app-sidebar {
+    gap: 18px;
+    padding: 18px;
+  }
+
+  .sidebar-top {
+    gap: 16px;
+  }
+
+  .nav-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-stack-label {
+    grid-column: 1 / -1;
+    padding: 0 4px 4px;
+  }
+
+  .nav-stack a {
+    justify-content: center;
+    padding: 12px 10px;
+  }
+
+  .nav-stack a .nav-dot {
+    display: none;
   }
 
   .field-grid.two-col {
     grid-template-columns: 1fr;
   }
 
+  .destination-fieldset {
+    padding: 16px;
+  }
+
   .result-list li {
     flex-direction: column;
     gap: 4px;
+  }
+}
+
+@media (max-width: 420px) {
+  .landing-shell,
+  .centered-page,
+  .app-shell {
+    padding: 12px;
+  }
+
+  .brand-mark {
+    height: 36px;
+    width: 36px;
+  }
+
+  .brand-wordmark {
+    font-size: 1.35rem;
+  }
+
+  .hero,
+  .hero-panel,
+  .feature-card,
+  .dashboard-card,
+  .auth-panel,
+  .page-header,
+  .workflow-card,
+  .result-panel {
+    padding: 18px;
+  }
+
+  .hero-copy h1,
+  .auth-panel h1,
+  .workflow-copy h2,
+  .page-header h2 {
+    font-size: clamp(1.8rem, 10.5vw, 2.35rem);
+  }
+
+  .eyebrow,
+  .hero-panel-title,
+  .nav-stack-label,
+  .sidebar-user .label,
+  .stats-grid span {
+    letter-spacing: 0.08em;
+  }
+
+  .nav-stack {
+    grid-template-columns: 1fr;
   }
 }
