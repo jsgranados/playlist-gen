@@ -21,8 +21,8 @@ export default async function LandingPage() {
             Turn your music into a <span className="accent">crate</span>, not a query.
           </h1>
           <p>
-            Crate pulls from festival lineups, your recent plays, and your streaming
-            history, then files everything into Spotify playlists. No scripts, no spreadsheets.
+            Crate pulls from festival lineups, your recent plays, and live setlists,
+            then files everything into Spotify playlists. No scripts, no spreadsheets.
           </p>
 
           <div className="hero-actions">
@@ -44,8 +44,8 @@ export default async function LandingPage() {
             <strong>Last 50 plays, filtered</strong>
           </div>
           <div className="hero-stat">
-            <span>History</span>
-            <strong>Full streaming export, ranged</strong>
+            <span>Setlist</span>
+            <strong>Recent live songs</strong>
           </div>
         </div>
       </section>
@@ -68,11 +68,11 @@ export default async function LandingPage() {
           </p>
         </article>
         <article className="feature-card">
-          <span className="eyebrow">History</span>
-          <h2>Dig deeper than the API allows.</h2>
+          <span className="eyebrow">Setlist</span>
+          <h2>Build from what artists play live.</h2>
           <p>
-            Upload your Spotify streaming history export for a date range. Crate resolves
-            the tracks and never retains the raw file.
+            Scan recent setlist.fm entries for an artist, resolve those songs against
+            Spotify, and collect the live rotation in a playlist.
           </p>
         </article>
       </section>

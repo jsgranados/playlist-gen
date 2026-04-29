@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { defaultFestivalUrl } from "@/lib/env";
-import { AppError } from "@/lib/errors";
 
 function refineDestination(
   value: { destinationMode: string; existingPlaylistId?: string; newPlaylistName?: string },
@@ -51,37 +50,10 @@ export const recentRequestSchema = z
     }
   });
 
-export const historyFieldSchema = z
+export const setlistRequestSchema = z
   .object({
-    startAt: z.string().trim().min(1),
-    endAt: z.string().trim().min(1),
-    timezone: z.string().trim().min(1),
-    destinationMode: z.enum(["new", "existing"]),
-    existingPlaylistId: z.string().trim().optional(),
-    newPlaylistName: z.string().trim().max(100).optional(),
-    newPlaylistPublic: z
-      .preprocess((v) => v === "true" || v === true, z.boolean())
-      .default(false)
+    artistName: z.string().trim().min(1).max(120),
+    setlistLimit: z.number().int().min(1).max(10).default(5),
+    destination: destinationSchema
   })
-  .superRefine((value, ctx) => {
-    refineDestination(value, ctx);
-
-    if (new Date(value.startAt).getTime() > new Date(value.endAt).getTime()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Start date must be before end date."
-      });
-    }
-  });
-
-export function ensureFileLike(value: FormDataEntryValue | null): File {
-  if (!(value instanceof File)) {
-    throw new AppError(
-      "A Spotify history JSON file is required.",
-      422,
-      "history_missing_file"
-    );
-  }
-
-  return value;
-}
+  .strict();

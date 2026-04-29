@@ -1,4 +1,4 @@
-export type WorkflowKind = "festival" | "recent" | "history";
+export type WorkflowKind = "festival" | "recent" | "setlist";
 export type DestinationMode = "new" | "existing";
 
 export interface PlaylistSummary {
@@ -36,17 +36,13 @@ export interface WorkflowResult {
     artistCount?: number;
     lineupUrl?: string;
     note?: string;
+    setlistCount?: number;
+    selectedArtist?: string;
     unmatchedTracks?: Array<{
       artist: string;
       track: string;
     }>;
   };
-}
-
-export interface HistoryTrackRecord {
-  artistName: string;
-  trackName: string;
-  endTime: string;
 }
 
 export interface PlaylistDestinationState {

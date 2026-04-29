@@ -1,10 +1,10 @@
 # Spotify Playlist Generator
 
-This project is now structured as a hosted `Next.js` app that keeps the original three playlist-generation modes and exposes them through a real web interface:
+This project is structured as a hosted `Next.js` app with focused playlist-generation workflows exposed through a real web interface:
 
 - Festival lineup to playlist
 - Recent plays to playlist
-- Streaming-history export to playlist
+- Setlist.fm artist setlists to playlist
 
 ## Stack
 
@@ -22,7 +22,7 @@ This project is now structured as a hosted `Next.js` app that keeps the original
 - Create a new playlist or append to an existing playlist in every workflow
 - Festival lineup matching against liked songs
 - Recent-play filtering with Spotify's 50-track API limit called out in the UI
-- History export upload with server-side parsing and immediate raw-file disposal
+- Setlist.fm artist lookup and recent live-set matching
 - Playlist deduplication before write
 - Basic request throttling and same-origin protections on mutation routes
 
@@ -60,6 +60,7 @@ SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 APP_URL=http://127.0.0.1:3000
 NEXTAUTH_URL=http://127.0.0.1:3000
 AUTH_SECRET=replace_me_with_a_long_random_secret
+SETLISTFM_API_KEY=your_setlistfm_api_key
 ```
 
 ## Workflows
@@ -78,14 +79,12 @@ AUTH_SECRET=replace_me_with_a_long_random_secret
 - Results are limited by Spotify's public API to the most recent 50 plays
 - Matching tracks are added to a new or existing playlist
 
-### History
+### Setlist
 
-- Upload a Spotify streaming-history JSON export
-- Choose a start and end date/time
-- The app filters rows in the selected range and resolves them against Spotify tracks
-- Raw upload data is processed for the request only and not retained
-
-To get the history export, request "Extended streaming history" from Spotify Privacy settings.
+- Input an artist name
+- The app resolves the artist in setlist.fm and scans recent setlists
+- Unique performed songs are resolved against Spotify tracks
+- Matching tracks are added to a new or existing playlist
 
 ## Quality Checks
 
@@ -113,6 +112,7 @@ no database, no queues, and no long-running jobs.
    APP_URL=https://playlist.yourdomain.com
    NEXTAUTH_URL=https://playlist.yourdomain.com
    AUTH_SECRET=replace_me_with_a_long_random_secret
+   SETLISTFM_API_KEY=your_setlistfm_api_key
    ```
 4. Add your production domain in Vercel.
 5. In the Spotify Developer Dashboard, add this redirect URI:
@@ -120,7 +120,7 @@ no database, no queues, and no long-running jobs.
 6. Deploy and verify:
    - `https://playlist.yourdomain.com/api/health`
    - Spotify sign-in
-   - Festival, recent, and history workflows
+   - Festival, recent, and setlist workflows
 
 ### Production Notes
 

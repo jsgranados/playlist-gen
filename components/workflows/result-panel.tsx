@@ -50,6 +50,12 @@ export function ResultPanel({
 
       {result.details.note ? <p className="result-note">{result.details.note}</p> : null}
 
+      {result.details.selectedArtist ? (
+        <p className="result-note">
+          Matched setlist.fm artist: {result.details.selectedArtist}
+        </p>
+      ) : null}
+
       {result.details.unmatchedTracks?.length ? (
         <div className="result-list">
           <h4>Sample unmatched tracks</h4>

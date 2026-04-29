@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s · Crate"
   },
   description:
-    "Crate turns festival lineups, recent plays, and streaming history into polished Spotify playlists.",
+    "Crate turns festival lineups, recent plays, and live setlists into polished Spotify playlists.",
   applicationName: "Crate"
 };
 

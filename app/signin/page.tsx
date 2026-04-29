@@ -55,7 +55,7 @@ export default async function SignInPage({
         <h1>Connect Spotify to start building crates.</h1>
         <p>
           Crate uses Spotify for sign-in, playlist reads and writes, liked tracks, and
-          recent plays. Uploaded history files are processed only for the current request.
+          recent plays. Setlist data is fetched server-side when you run that workflow.
         </p>
         {signInError ? (
           <div className="callout error" role="alert">

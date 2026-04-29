@@ -26,10 +26,10 @@ export default function DashboardPage() {
           title="Your recent rotation"
         />
         <DashboardCard
-          description="Upload your Spotify streaming history export. Filter by date. Nothing is retained."
-          eyebrow="History"
-          href="/app/history"
-          title="Deep-range history dig"
+          description="Scan recent setlist.fm entries for an artist and turn the live songs into a Spotify playlist."
+          eyebrow="Setlist"
+          href="/app/setlist"
+          title="Live set builder"
         />
       </div>
     </section>

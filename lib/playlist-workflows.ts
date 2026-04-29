@@ -1,10 +1,12 @@
-import { DateTime } from "luxon";
-
 import { parseFlexibleDate, isWithinRange, toSpotifyTimestampMs } from "@/lib/dates";
 import { defaultFestivalUrl } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { fetchFestivalArtists } from "@/lib/festival";
-import { HistoryTrackRecord } from "@/lib/types";
+import {
+  extractSetlistSongNames,
+  getArtistSetlists,
+  searchSetlistFmArtist
+} from "@/lib/setlistfm";
 import {
   addPlaylistItems,
   createPlaylist,
@@ -140,6 +142,10 @@ export async function runFestivalWorkflow(
   };
 }
 
+function normalizeSongName(name: string) {
+  return name.trim().toLowerCase();
+}
+
 export async function runRecentWorkflow(
   accessToken: string,
   input: {
@@ -183,53 +189,41 @@ export async function runRecentWorkflow(
   };
 }
 
-function filterHistoryRecords(
-  records: HistoryTrackRecord[],
-  startAt: DateTime,
-  endAt: DateTime,
-  timezone: string
-) {
-  return records.filter((record) => {
-    const playedAt = parseFlexibleDate(record.endTime, timezone);
-    return isWithinRange(playedAt, startAt, endAt);
-  });
-}
-
-export async function runHistoryWorkflow(
+export async function runSetlistWorkflow(
   accessToken: string,
   input: {
-    records: HistoryTrackRecord[];
-    startAt: string;
-    endAt: string;
-    timezone: string;
+    artistName: string;
+    setlistLimit: number;
     destination: PlaylistDestinationInput;
   }
 ): Promise<WorkflowResult> {
-  const startAt = parseFlexibleDate(input.startAt);
-  const endAt = parseFlexibleDate(input.endAt);
-  const recordsInRange = filterHistoryRecords(
-    input.records,
-    startAt,
-    endAt,
-    input.timezone
-  );
-  const trackKey = (record: HistoryTrackRecord) =>
-    `${record.artistName}::${record.trackName}`.toLowerCase();
+  const artist = await searchSetlistFmArtist(input.artistName);
 
-  const uniqueRecords = new Map<string, HistoryTrackRecord>();
-  for (const record of recordsInRange) {
-    const key = trackKey(record);
-    if (!uniqueRecords.has(key)) {
-      uniqueRecords.set(key, record);
+  if (!artist) {
+    throw new AppError(
+      "No setlist.fm artist matched that name.",
+      404,
+      "setlist_artist_not_found"
+    );
+  }
+
+  const setlists = await getArtistSetlists(artist.mbid, input.setlistLimit);
+  const songNames = extractSetlistSongNames(setlists);
+  const uniqueSongs = new Map<string, string>();
+
+  for (const songName of songNames) {
+    const key = normalizeSongName(songName);
+    if (!uniqueSongs.has(key)) {
+      uniqueSongs.set(key, songName);
     }
   }
 
   const lookupEntries = await Promise.all(
-    Array.from(uniqueRecords, async ([key, record]) => {
+    Array.from(uniqueSongs, async ([key, songName]) => {
       const track = await searchTrackUri(
         accessToken,
-        record.artistName,
-        record.trackName
+        artist.name,
+        songName
       );
       return [key, track?.uri ?? null] as const;
     })
@@ -239,8 +233,8 @@ export async function runHistoryWorkflow(
   const unmatchedTracks: Array<{ artist: string; track: string }> = [];
   const matchedUris: string[] = [];
 
-  for (const record of recordsInRange) {
-    const uri = lookupCache.get(trackKey(record));
+  for (const [key, songName] of uniqueSongs) {
+    const uri = lookupCache.get(key);
 
     if (uri) {
       matchedUris.push(uri);
@@ -249,8 +243,8 @@ export async function runHistoryWorkflow(
 
     if (unmatchedTracks.length < 10) {
       unmatchedTracks.push({
-        artist: record.artistName,
-        track: record.trackName
+        artist: artist.name,
+        track: songName
       });
     }
   }
@@ -258,25 +252,28 @@ export async function runHistoryWorkflow(
   const playlist = await resolvePlaylistDestination(
     accessToken,
     input.destination,
-    "Streaming history"
+    "Setlist"
   );
   const addSummary = await addTracksWithDedupe(accessToken, playlist.id, matchedUris, playlist.isNew);
 
   return {
-    workflow: "history",
+    workflow: "setlist",
     playlist,
     counts: {
-      candidates: recordsInRange.length,
+      candidates: uniqueSongs.size,
       matched: uniqueTrackUris(matchedUris).length,
       added: addSummary.added,
       existing: addSummary.existing,
-      skipped: recordsInRange.length - addSummary.added
+      skipped: uniqueSongs.size - addSummary.added
     },
     warnings:
       unmatchedTracks.length > 0
-        ? ["Some history tracks could not be matched to Spotify catalog items."]
+        ? ["Some setlist songs could not be matched to Spotify catalog items."]
         : [],
     details: {
+      note: `Scanned ${setlists.length} recent setlists for ${artist.name}.`,
+      selectedArtist: artist.name,
+      setlistCount: setlists.length,
       unmatchedTracks
     }
   };

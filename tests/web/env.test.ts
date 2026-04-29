@@ -8,7 +8,8 @@ describe("buildDeploymentHealth", () => {
       AUTH_SECRET: "secret",
       NODE_ENV: "development",
       SPOTIFY_CLIENT_ID: "client-id",
-      SPOTIFY_CLIENT_SECRET: "client-secret"
+      SPOTIFY_CLIENT_SECRET: "client-secret",
+      SETLISTFM_API_KEY: "setlist-key"
     });
 
     expect(health.isReady).toBe(true);
@@ -24,7 +25,8 @@ describe("buildDeploymentHealth", () => {
       AUTH_SECRET: "secret",
       NODE_ENV: "production",
       SPOTIFY_CLIENT_ID: "client-id",
-      SPOTIFY_CLIENT_SECRET: "client-secret"
+      SPOTIFY_CLIENT_SECRET: "client-secret",
+      SETLISTFM_API_KEY: "setlist-key"
     });
 
     expect(health.isReady).toBe(false);
@@ -39,7 +41,8 @@ describe("buildDeploymentHealth", () => {
       AUTH_SECRET: "secret",
       NODE_ENV: "production",
       SPOTIFY_CLIENT_ID: "client-id",
-      SPOTIFY_CLIENT_SECRET: "client-secret"
+      SPOTIFY_CLIENT_SECRET: "client-secret",
+      SETLISTFM_API_KEY: "setlist-key"
     });
 
     expect(health.isReady).toBe(true);

@@ -51,6 +51,7 @@ export function buildDeploymentHealth(env: EnvSource = process.env): DeploymentH
   const nodeEnv = readTrimmedEnvFrom(env, "NODE_ENV") ?? "development";
   const spotifyClientId = readTrimmedEnvFrom(env, "SPOTIFY_CLIENT_ID");
   const spotifyClientSecret = readTrimmedEnvFrom(env, "SPOTIFY_CLIENT_SECRET");
+  const setlistFmApiKey = readTrimmedEnvFrom(env, "SETLISTFM_API_KEY");
   const authSecret =
     readTrimmedEnvFrom(env, "AUTH_SECRET") ??
     readTrimmedEnvFrom(env, "NEXTAUTH_SECRET");
@@ -83,6 +84,13 @@ export function buildDeploymentHealth(env: EnvSource = process.env): DeploymentH
       detail: authSecret ? "AUTH_SECRET is set." : "Missing AUTH_SECRET."
     },
     {
+      name: "setlistfm-api-key",
+      ok: Boolean(setlistFmApiKey),
+      detail: setlistFmApiKey
+        ? "SETLISTFM_API_KEY is set."
+        : "Missing SETLISTFM_API_KEY."
+    },
+    {
       name: "app-url",
       ok: Boolean(configuredAppUrl),
       detail: configuredAppUrl
@@ -101,6 +109,10 @@ export function buildDeploymentHealth(env: EnvSource = process.env): DeploymentH
 
   if (!authSecret) {
     issues.push("Set AUTH_SECRET.");
+  }
+
+  if (!setlistFmApiKey) {
+    issues.push("Set SETLISTFM_API_KEY.");
   }
 
   if (nodeEnv === "production" && isLocalOrigin(appUrl)) {
@@ -144,4 +156,4 @@ export const authSecret =
   readTrimmedEnv("NEXTAUTH_SECRET") ??
   "";
 
-export const maxHistoryUploadBytes = 10 * 1024 * 1024;
+export const setlistFmApiKey = readTrimmedEnv("SETLISTFM_API_KEY") ?? "";

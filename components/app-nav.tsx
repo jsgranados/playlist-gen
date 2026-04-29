@@ -7,7 +7,7 @@ const navItems = [
   { href: "/app", label: "Overview" },
   { href: "/app/festival", label: "Festival" },
   { href: "/app/recent", label: "Recent" },
-  { href: "/app/history", label: "History" }
+  { href: "/app/setlist", label: "Setlist" }
 ];
 
 function isActive(pathname: string | null, href: string) {
