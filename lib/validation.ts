@@ -8,14 +8,14 @@ function refineDestination(
 ) {
   if (value.destinationMode === "existing" && !value.existingPlaylistId) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "An existing playlist must be selected."
     });
   }
 
   if (value.destinationMode === "new" && !value.newPlaylistName) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "A new playlist name is required."
     });
   }
@@ -31,7 +31,7 @@ const destinationSchema = z
   .superRefine(refineDestination);
 
 export const festivalRequestSchema = z.object({
-  lineupUrl: z.string().trim().url().optional().default(defaultFestivalUrl),
+  lineupUrl: z.url().trim().optional().default(defaultFestivalUrl),
   destination: destinationSchema
 });
 
@@ -44,7 +44,7 @@ export const recentRequestSchema = z
   .superRefine((value, ctx) => {
     if (value.endAt && new Date(value.startAt).getTime() > new Date(value.endAt).getTime()) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "Start date must be before end date."
       });
     }

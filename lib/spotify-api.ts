@@ -188,7 +188,7 @@ export async function searchTrackUri(
   accessToken: string,
   artist: string,
   track: string
-) {
+): Promise<SpotifyTrack | null> {
   const query = encodeURIComponent(`artist:${artist} track:${track}`);
   const response = await spotifyFetch<SpotifySearchResponse>(
     accessToken,

@@ -1,12 +1,5 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 
-import { FlatCompat } from "@eslint/eslintrc";
-
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url))
-});
-
-const config = [...compat.config({ extends: ["next/core-web-vitals"] })];
+const config = [...nextCoreWebVitals];
 
 export default config;

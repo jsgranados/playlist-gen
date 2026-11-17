@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type {
   PlaylistDestinationState,
@@ -14,17 +14,18 @@ export function PlaylistDestinationFields({
   value: PlaylistDestinationState;
   onChange: (next: PlaylistDestinationState) => void;
 }) {
-  const [playlists, setPlaylists] = useState<PlaylistSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [playlists, setPlaylists] = useState<PlaylistSummary[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const requestedRef = useRef(false);
+  const wantsPlaylists = value.destinationMode === "existing";
+  const isLoading = wantsPlaylists && playlists === null && loadError === null;
 
   useEffect(() => {
-    if (value.destinationMode !== "existing" || playlists.length > 0 || isLoading) {
+    if (!wantsPlaylists || requestedRef.current) {
       return;
     }
 
-    setIsLoading(true);
-    setLoadError(null);
+    requestedRef.current = true;
 
     void fetch("/api/spotify/playlists", {
       credentials: "same-origin"
@@ -40,17 +41,16 @@ export function PlaylistDestinationFields({
         }
 
         setPlaylists(payload.playlists);
+        setLoadError(null);
       })
       .catch((error: unknown) => {
+        // Allow a retry the next time the user switches to "existing".
+        requestedRef.current = false;
         setLoadError(
           error instanceof Error ? error.message : "Unable to load playlists."
         );
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- isLoading is guarded inside the effect to prevent duplicate fetches
-  }, [playlists.length, value.destinationMode]);
+  }, [wantsPlaylists]);
 
   return (
     <fieldset className="destination-fieldset">
@@ -136,7 +136,7 @@ export function PlaylistDestinationFields({
               value={value.existingPlaylistId}
             >
               <option value="">Select a playlist</option>
-              {playlists.map((playlist) => (
+              {(playlists ?? []).map((playlist) => (
                 <option key={playlist.id} value={playlist.id}>
                   {playlist.name}
                 </option>
