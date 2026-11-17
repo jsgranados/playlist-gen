@@ -145,8 +145,20 @@ export const spotifyScopes = [
   "user-read-recently-played"
 ].join(" ");
 
-export const defaultFestivalUrl =
-  "https://amp-prod-aeg-festivaldata.s3.amazonaws.com/app/711/2g4uo3jiai93brm3/artists.json";
+export const festivalLineups = [
+  {
+    id: "coachella-2027",
+    label: "Coachella 2027",
+    url: "https://events.aegamp.com/app/733/qMDjxOd3C81frFDt/artists.json"
+  },
+  {
+    id: "coachella-2026",
+    label: "Coachella 2026",
+    url: "https://amp-prod-aeg-festivaldata.s3.amazonaws.com/app/711/2g4uo3jiai93brm3/artists.json"
+  }
+] as const;
+
+export const defaultFestivalUrl: string = festivalLineups[0].url;
 
 export const appUrl = deploymentHealth.appUrl;
 export const expectedSpotifyRedirectUri = deploymentHealth.expectedSpotifyRedirectUri;

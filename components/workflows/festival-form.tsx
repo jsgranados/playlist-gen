@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { submitWorkflow } from "@/lib/client-request";
-import { defaultFestivalUrl } from "@/lib/env";
+import { defaultFestivalUrl, festivalLineups } from "@/lib/env";
 import type {
   PlaylistDestinationState,
   WorkflowResult
@@ -20,6 +20,8 @@ const initialDestination: PlaylistDestinationState = {
 
 export function FestivalForm() {
   const [lineupUrl, setLineupUrl] = useState(defaultFestivalUrl);
+  const selectedPreset =
+    festivalLineups.find((lineup) => lineup.url === lineupUrl.trim())?.id ?? "custom";
   const [destination, setDestination] = useState(initialDestination);
   const [result, setResult] = useState<WorkflowResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +62,24 @@ export function FestivalForm() {
 
       <div className="form-grid">
         <label className="field">
+          <span>Festival lineup</span>
+          <select
+            onChange={(event) => {
+              const preset = festivalLineups.find((lineup) => lineup.id === event.target.value);
+              setLineupUrl(preset ? preset.url : "");
+            }}
+            value={selectedPreset}
+          >
+            {festivalLineups.map((lineup) => (
+              <option key={lineup.id} value={lineup.id}>
+                {lineup.label}
+              </option>
+            ))}
+            <option value="custom">Custom URL</option>
+          </select>
+        </label>
+
+        <label className="field">
           <span>Festival lineup JSON URL</span>
           <input
             onChange={(event) => setLineupUrl(event.target.value)}
@@ -67,7 +87,7 @@ export function FestivalForm() {
             type="url"
             value={lineupUrl}
           />
-          <small>Default is the current Coachella lineup feed.</small>
+          <small>Pick a lineup above or paste any feed that exposes artist titles.</small>
         </label>
 
         <PlaylistDestinationFields onChange={setDestination} value={destination} />
